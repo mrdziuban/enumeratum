@@ -111,10 +111,10 @@ lazy val scala_2_13 = Project(id = "scala_2_13", base = file("scala_2_13"))
     crossVersion := CrossVersion.binary,
     // Do not publish this  project (it just serves as an aggregate)
     publishArtifact := false,
+    bintrayRelease := {},
     publishLocal := {},
     //doctestWithDependencies := false, // sbt-doctest is not yet compatible with this 2.13
-    aggregate in publish := false,
-    aggregate in PgpKeys.publishSigned := false
+    aggregate in publish := false
   )
   .aggregate((baseProjectRefs ++ scala213ProjectRefs): _*)
 
@@ -147,9 +147,9 @@ lazy val root =
       git.gitRemoteRepo := "git@github.com:lloydmeta/enumeratum.git",
       // Do not publish the root project (it just serves as an aggregate)
       publishArtifact := false,
+      bintrayRelease := {},
       publishLocal := {},
-      aggregate in publish := false,
-      aggregate in PgpKeys.publishSigned := false
+      aggregate in publish := false
     )
     .aggregate(baseProjectRefs ++ integrationProjectRefs: _*)
 
@@ -229,6 +229,7 @@ lazy val coreJVMTests = Project(id = "coreJVMTests", base = file("enumeratum-cor
       "org.scala-lang" % "scala-compiler" % scalaVersion.value % Test
     ),
     publishArtifact := false,
+    bintrayRelease := {},
     publishLocal := {}
   )
   .dependsOn(coreJVM, macrosJVM)
@@ -523,7 +524,7 @@ lazy val scoverageSettings = Seq(
 // Settings for publishing to Maven Central
 lazy val publishSettings = Seq(
   pomExtra :=
-    <url>https://github.com/lloydmeta/enumeratum</url>
+    <url>https://github.com/mrdziuban/enumeratum</url>
       <licenses>
         <license>
           <name>MIT</name>
@@ -537,21 +538,21 @@ lazy val publishSettings = Seq(
           <name>Lloyd Chan</name>
           <url>https://beachape.com</url>
         </developer>
+        <developer>
+          <id>mrdziuban</id>
+          <name>Matt Dziuban</name>
+          <url>https://mattdziuban.com</url>
+        </developer>
       </developers>,
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (version.value.trim.endsWith("SNAPSHOT"))
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
-  },
-  pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  PgpKeys.pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray),
   pomIncludeRepository := { _ =>
     false
-  }
+  },
+  licenses += ("MIT", url("https://opensource.org/licenses/MIT")),
+  bintrayOrganization := Some("mrdziuban"),
+  bintrayRepository := "enumeratum",
+  bintrayReleaseOnPublish in ThisBuild := false
 )
 
 val testSettings = {
@@ -580,6 +581,7 @@ lazy val benchmarking =
       crossVersion := CrossVersion.binary,
       // Do not publish
       publishArtifact := false,
+      bintrayRelease := {},
       publishLocal := {}
     )
     .dependsOn((baseProjectRefs ++ integrationProjectRefs).map(ClasspathDependency(_, None)): _*)
@@ -641,6 +643,7 @@ def aggregateProject(id: String, projects: ProjectReference*): Project =
         "org.scalatest" %% "scalatest" % scalaTestVersion % Test
       },
       publishArtifact := false,
+      bintrayRelease := {},
       publishLocal := {}
     )
     .aggregate(projects: _*)
